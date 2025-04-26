@@ -80,8 +80,14 @@ listening_Strategy *Create_listening_Strategy(listening_song_Manner manner)
     virtual void rewind_music() = 0;
     virtual void add_songs() = 0;
     virtual void switch_new_song() = 0;
+    virtual void Print_Type() = 0;
+    virtual void Connect() = 0;
     void listening_music()
     {
+        Print_Type();
+        cout << ":";
+        Connect();
+        cout << ":";
         Do_listening_using_strategy();
         cout<<endl;
     }
@@ -108,7 +114,8 @@ listening_Strategy *Create_listening_Strategy(listening_song_Manner manner)
    void add_songs() {wcout << L"Заменим касету в плеере" << endl;}
    void rewind_music() {wcout << L"Скурутить плёнку на плеере" << endl;}
    void switch_new_song() {wcout << L"Перекрутить плёнку на нужную песню" << endl;}
-   void listening_music() {wcout << L"Послушать касетный mp3_plaer" << endl;}
+   void Connect() {wcout << L"Вставить наушники в плеер";}
+   void Print_Type() {wcout << L"Касетный плеер";}
  };
 
  MP3_cassette_players::MP3_cassette_players()
@@ -136,6 +143,8 @@ public:
     void add_songs() {wcout << L"Поставитьт другую Sd карту" << endl;}
     void switch_new_song() {wcout << L"Нажать два раза на кнопку переключения песен" << endl;}
     void listening_music() {wcout << L"Послушать Hirez mp3_plaer" << endl;}
+    void Connect() {wcout << L"Подключить наушники по блютуз";}
+    void Print_Type() {wcout << L"Хай рез плеер";}
  };
 
  MP3_Hirez_players::MP3_Hirez_players()
@@ -162,6 +171,8 @@ public:
     void add_songs() {wcout << L"Скачать песни с интернета" << endl;}
     void switch_new_song() {wcout << L"Провести влево по экранну" << endl;}
     void listening_music() {wcout << L"Послушать сенсорный mp3_plaer" << endl;}
+    void Connect() {wcout << L"Подключить колонки к плееру";}
+    void Print_Type() {wcout << L"Сенсорный плеер";}
 };
 
 MP3_player_sensor_screen::MP3_player_sensor_screen()
