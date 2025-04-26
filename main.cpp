@@ -6,10 +6,67 @@
 #include <vector>
 #include <list>
 
-
 using namespace std;
+
+// реализация патерна Стратегия
+// перечислим все способы add_song
+enum class listening_song_Manner: int
+{
+    listening_with_headphones,
+    listening_with_Hirez_headphones,
+    listening_with_speaker,
+    None
+};
+
+class listening_Strategy
+{
+public:
+    virtual ~listening_Strategy(){}
+    virtual void listening_music()=0;
+};
+
+class listening_with_headphones_Strategy: public listening_Strategy
+{
+    void listening_music() {wcout << L"Вывести музыку в наушники" << endl;}
+};
+
+class listening_with_Hirez_headphones_Strategy: public listening_Strategy
+{
+    void listening_music() {wcout << L"Вывести музыку в хайрез наушники" << endl;}
+};
+
+class listening_with_speaker_Strategy: public listening_Strategy
+{
+    void listening_music() {wcout << L"Вывести музыку на динамики" << endl;}
+};
+
+listening_Strategy *Create_listening_Strategy(listening_song_Manner manner)
+{
+    switch(manner)
+{
+    case listening_song_Manner::listening_with_headphones:return new listening_with_headphones_Strategy;
+    case listening_song_Manner::listening_with_Hirez_headphones:return new listening_with_Hirez_headphones_Strategy;
+    case listening_song_Manner::listening_with_speaker:return new listening_with_speaker_Strategy;
+    default: return nullptr;
+}
+}
+
  class MP3_player
  {
+ private:
+     listening_Strategy *listening_Manner;
+     void Do_listening_using_strategy()
+     {
+        if(listening_Manner == nullptr)
+        {
+            cout << "Do nothing!";
+            return;
+        }
+        else
+        {
+            listening_Manner->listening_music();
+        }
+     }
  public:
     int Memory;
     wstring Size;
@@ -23,6 +80,12 @@ using namespace std;
     virtual void rewind_music() = 0;
     virtual void add_songs() = 0;
     virtual void switch_new_song() = 0;
+    void listening_music()
+    {
+        Do_listening_using_strategy();
+        cout<<endl;
+    }
+    void set_listening_manner(listening_Strategy *Listening_manner){listening_Manner = Listening_manner;}
     virtual ~MP3_player();
  };
 
@@ -33,6 +96,7 @@ using namespace std;
 
  MP3_player::~MP3_player()
  {
+     if(listening_Manner != nullptr) delete listening_Manner;
      wcout << L"Удаление элемента MP3_player" << endl;
  }
 
@@ -44,6 +108,7 @@ using namespace std;
    void add_songs() {wcout << L"Заменим касету в плеере" << endl;}
    void rewind_music() {wcout << L"Скурутить плёнку на плеере" << endl;}
    void switch_new_song() {wcout << L"Перекрутить плёнку на нужную песню" << endl;}
+   void listening_music() {wcout << L"Послушать касетный mp3_plaer" << endl;}
  };
 
  MP3_cassette_players::MP3_cassette_players()
@@ -53,6 +118,7 @@ using namespace std;
      Memory = 4;
      Screen_resolution = L"Экрана нет";
      Color = L"Красный";
+     set_listening_manner(Create_listening_Strategy(listening_song_Manner::listening_with_headphones));
  }
 
  MP3_cassette_players::~MP3_cassette_players()
@@ -69,6 +135,7 @@ public:
     void rewind_music() {wcout << L"Задержать кнопку переключения песен" << endl;}
     void add_songs() {wcout << L"Поставитьт другую Sd карту" << endl;}
     void switch_new_song() {wcout << L"Нажать два раза на кнопку переключения песен" << endl;}
+    void listening_music() {wcout << L"Послушать Hirez mp3_plaer" << endl;}
  };
 
  MP3_Hirez_players::MP3_Hirez_players()
@@ -78,6 +145,7 @@ public:
      Memory = 512;
      Screen_resolution = L"1920*1080";
      Color = L"Синий";
+     set_listening_manner(Create_listening_Strategy(listening_song_Manner::listening_with_Hirez_headphones));
  }
 
  MP3_Hirez_players::~MP3_Hirez_players()
@@ -93,6 +161,7 @@ public:
     void rewind_music() {wcout << L"Перетащить ползунок обозначающий проигрование песен" << endl;}
     void add_songs() {wcout << L"Скачать песни с интернета" << endl;}
     void switch_new_song() {wcout << L"Провести влево по экранну" << endl;}
+    void listening_music() {wcout << L"Послушать сенсорный mp3_plaer" << endl;}
 };
 
 MP3_player_sensor_screen::MP3_player_sensor_screen()
@@ -102,6 +171,7 @@ MP3_player_sensor_screen::MP3_player_sensor_screen()
     Memory = 100;
     Screen_resolution = L"2048*1536";
     Color = L"Серый";
+    set_listening_manner(Create_listening_Strategy(listening_song_Manner::listening_with_speaker));
 }
 
 MP3_player_sensor_screen::~MP3_player_sensor_screen()
@@ -222,7 +292,6 @@ public:
         }while(!It->Is_Done()&& It->Get_Current()->Screen_resolution != Target_Screen_resolution);
     }
 };
-
 int main()
 {
     setlocale(LC_ALL, "Russian");
@@ -232,18 +301,22 @@ int main()
     new_player1->Get_memory();
     new_player1->Get_screen_resolution();
     new_player1->Get_Size();
+    new_player1->listening_music();
     cout << endl;
     MP3_player *new_player2 = new MP3_Hirez_players;
     new_player2 -> Get_Color();
     new_player2->Get_memory();
     new_player2->Get_screen_resolution();
     new_player2->Get_Size();
+    new_player2->listening_music();
     cout << endl;
     MP3_player *new_player3 = new MP3_player_sensor_screen;
     new_player3 -> Get_Color();
     new_player3->Get_memory();
     new_player3->Get_screen_resolution();
     new_player3->Get_Size();
+    //работа стратегии
+    new_player3->listening_music();
     cout << endl;
     //Перемотаем песню на каждом плеере
     wcout << L"Перемотка песни на new_player1" << endl;
@@ -287,6 +360,7 @@ int main()
     new_MP3_player->Get_memory();
     new_MP3_player->Get_screen_resolution();
     new_MP3_player->Get_Size();
+    new_MP3_player->listening_music();
     cout << endl;
     delete new_player1;
     delete new_player2;
